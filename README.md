@@ -1,0 +1,185 @@
+API Http do APIx API Manager.
+
+@paulosuzart
+
+@rafaelfelini
+
+@abraaoisvi
+
+Project Structure
+=================
+
+Since leiningen does not provide - at moment - subprojets. All applications lies on the same lein project.
+However, the deivision applies:
+
+* `src/apix`            - common functions and structures
+* `src/apix/api`       - code for the RESTful API
+* `src/apix/bg`        - code for the background process responsible for price calculation and aggregtion
+* `src/apix/model` - code for models that is access throughtout applications *DEPRECATED, now we are REDIS*
+
+* * *
+Required ENV_VARS
+=================
+
+* `PORT=8080` - The port to run the server
+* `REDISTOGO_URL`=redis://ip-10-248-22-176.sa-east-1.compute.internal:6379 (the redis ec2. **TODO** We should give a name/ip/balance to it)
+* `AWS_KEYID`=.... **TODO** Change to another type of 
+* `AWS_KEY`=..
+* `SDB_TICKETS_DOMAIN`=tickets (default is `ticket-dev`)
+* `JAVA_OPTS`     => `-Xmx400m`
+* `REDISTOGO_URL` => `redis://redistogo:abigusername@instancename.redistogo.com:9170/`
+
+`model` package, `entity` and `query` strategy for MYSQL
+=======================================================
+
+In the model namespace, there is a `entities.clj` file tha concentrate all entities definitions and relations. This `ns` is not supposed to be used/required by the applications but by query specific namespaces such as `apix.model.security_key`.
+
+The intention behind this approach is to use the same pattern of query by namespace. For example:
+
+	(ns apix.api.core
+	    (:require [apix.model.security_key :as sk]))
+	    ...
+	    (first (sk/by-id 21)) ;;
+
+In the future we can standardize a `protocol` for queries or let things flaxible as it is right now.
+
+Another point is to diminish the korma code's contact surface with the database, using compositions. For example:
+	;; in the security_key ns
+	(def base (select* security-key))
+
+    (defn- id-is [q id] (where q {:security_key_id id}))
+
+    (defn by-id [id]
+	    (-> base
+		    (fields :security_key :user.username :user.user_id)
+		    (with user)
+		    (id-is id)
+		    (exec)))
+
+Instead of having `where` being used around to filter, it is just put in a single place. The function `id-is` in this case.
+
+In times of refactoring we should experience less pain if compared with a larger contact surface with the database.
+
+**It is also a good practice to wrap a query result in a `defrecord`.**
+
+* * *
+
+API Usage
+=========
+
+**Action:** `RegisterTicket`
+----------------------------------
+
+**Description:** Returns the generated ticket id for futher checks.
+
+**Request Parameters :**
+
+* `SecurityKeyID` - A user should have one or more security key identifiers to identify the security key used to sign the request. Only valid keys should be used (not marked as deleted).
+* `ServiceUser` - A user should pass on his user. This user represents possible costumers of our users.
+* `ServiceName` - The name of the service beeing billed.
+* `ServiceVersion` - Since Bill IT allows users to have more than one servicer registered, they should identify the service version.
+* `TicketTime` - In the for of `2011-10-12 05:30:22 -0300`
+* `Signature` - The signature itself.
+
+Response Parameters (in json format)
+
+* `ticket-uuid (string)`: The id for the created ticket
+* `X-Billit-Api-Time` : Time spent to register the ticket in milliseconds - *as HTTP header*
+
+Examples:
+
+**Example Requet**
+    curl -G http://apix.defthoughts.com/ -d Action=RegisterTicket -d 'SecurityKeyID=t5xC1SV2ISUiKfzIhPS2' -d 'ServiceUser=SampleuserDN' -d 'ServiceName=MortgageService' -d 'ServiceVersion=V1_0' -d 'TicketTime=2011-10-12+05%3A30%3A22+-0300' -d 'Signature=Ea75zmXp%2BdkJG%2F3m1IX%2FPiDIs%2B4%3D'  -v
+
+**Example Response**
+
+    {"ticket-uuid":"14"} 
+     #http header: X-Billit-Api-Time: 8
+
+Notes:
+--------
+APIX API returns json only. xml may be added in the future.
+
+Signing API Calls
+=================
+
+There is a separate namespace with a simple set of functions to do so. We use an approach similar to AWS signatures. Our signatures should be assembled as following:
+
+1. All parameters should ordered alphabetically.
+1. Parameters names are then joined with their values and concatenated with no spaces. ex.: A given query string ?
+1. ServiceName=MortigageService&ServiceVersion=V1_0 is signed after transformed toServiceNameMortigageServiceServiceVersionV1_0.
+1. The secret key should be used to sign this content using HmacSHA1.
+1. The returning value forms the signature to be put in the query string with the param name Signature.
+
+The same procedure runs in the server side to check every request.
+
+Notes:
+--------
+By now the API runs without SSL. It should be added soon.
+
+A sign util can be found at apix-util project. Source at apix-util
+
+Every APIX It user possess a Security Key Pair. Like AWS, the user signs requests with its Security Key, while sending the Security Key Id in the request.
+
+A Security Key is a 320 bits sequence, while the Security Key ID is a 160 bits sequence generated by APIX It admins.
+
+* * *
+
+REDIS layout
+============
+
+Legends:
+
+* `$` means provided by some interaction with redis
+* `*` means provided by user
+* `key` represents a redis KEY with the value set by `SET`
+* `(listname)` represents a redis LIST with elements manipulated by `LPUSH` and so on
+* `{hashname data|key value}` represents a redis `HASH` with data set by `HSET` or `HMSET`
+* `#{setname data}` represents a set or sorted set
+
+
+
+Ticket x User
+-------------
+
+* What are all the tickets (`users:tickets`) that belongs to a certain user (`uid`)?
+  * `#{users:tickets:%uid}`
+
+Tickets
+-------
+
+* How to generate (`INCR`) the next ticket id(`tickets:next`)?
+  * `tickets:next`
+* How to know all possible tickets registered at apex?
+  * `#{tickets $tid}` Where $tid is the ticket id
+* What is the may structure to store a ticket?
+  * `{tickets:$tid ServiceUser TicketIn TicketTime SecurityKeyID ServiceName TicketId Uid Price ServiceVersion RemoteAddr TicketOut}` a `HASH`
+* How to communicate with the background process?
+  * `(tickets)` A `LIST` where all tickets are `LPUSH`ed and then `BRPOP`ed from a background process.
+* How to know if a ticket is pending?
+  * `#{tickets:pending tid}` Storing the Ticket ids in a set with all pending tickets.
+
+Service Information
+-------------------
+
+* How to get the price from a service version that belongs to a certain user?
+  * `servicemeta:$uid:$name:$version:price` Storing the price in a key derived from service and user information.
+
+User
+----
+
+* How to generate the next id for a user?
+  * `users:next` with a `INC`
+* How to get the user Security Key, mail and name?
+  * `{authinfo:$skeyid: uid $uid skey $skey uname $uname}`
+
+Minimal setup
+============
+The main data to run the apix is the security information about users. During the processing, if there is no Service registered for a guiven request, its value is 0.0 by default. The strucure is:
+
+`{authinfo:$skeyid: uid $uid skey $skey uname $uname}`, what can be set with:
+
+    HMSET authinfo:t5xC1SV2ISUiKfzIhPS2 uid 1 skey
+    MIrGSQ9mn88vQ7mdPZ8l4BIq1qvMUsAfSRMsiCf1 uname paulosuzart 
+    
+A domain on SDB should be created. The domain used is defined by apix.util/dcurdom. That gives us the env var named `SDB_TICKETS_DOMAIN` plus the current year and month. Ex.: `tickets-dev-20120` for january 2012. It may change over time to keep domains as small as possible.
