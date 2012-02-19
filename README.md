@@ -101,4 +101,4 @@ A Security Key is a 320 bits sequence, while the Security Key ID is a 160 bits s
 Forking
 =======
 
-The is a `db` folder with MySQL Workbench. Set up the schema and run the project with `foreman start`.
+There is a `db` folder with MySQL Workbench. Set up the schema and run the project with `foreman start`. We have a lot to do!
