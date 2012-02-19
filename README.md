@@ -1,5 +1,7 @@
 API for registering users of you API. 
 
+See the [generated source doc](http://paulosuzart.github.com/fiscalia/).
+
 @paulosuzart
 
 `model` package, `entity` and `query` strategy for MYSQL
@@ -100,3 +102,6 @@ Forking
 =======
 
 There is a `db` folder with MySQL Workbench. Set up the schema and run the project with `foreman start`. We have a lot to do!
+You will also need Coffee Script for the UI. I'm using it to build de user interface that is nothing but a single html file running backbone.js.
+
+You'll find a cakefile.cljs in the project if you want to use the clojurescript to build the coffee files.
