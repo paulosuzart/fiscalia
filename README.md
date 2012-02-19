@@ -1,8 +1,6 @@
-API Http do APIx API Manager.
+API for registering users of you API. 
 
 @paulosuzart
-
-
 
 `model` package, `entity` and `query` strategy for MYSQL
 =======================================================
