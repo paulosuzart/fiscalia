@@ -3054,7 +3054,8 @@ net.brehaut.ClojureTools = (function (SH) {
 	 &quot;GenerateBill&quot; #{&quot;Action&quot; &quot;SecurityKeyID&quot; &quot;Signature&quot;}
 	 &quot;GetUserSummary&quot; #{&quot;Action&quot; &quot;SecurityKeyID&quot; &quot;Signature&quot; 
 	 					&quot;ServiceName&quot; &quot;ServiceUser&quot; &quot;ServiceVersion&quot;}
-	 &quot;CreateService&quot; #{&quot;Action&quot; &quot;ServiceName&quot; &quot;ServiceVersion&quot; &quot;ServicePrice&quot;}})</pre></td></tr><tr><td class="docs"><p>Concentrates all errors exposed by ty API</p>
+	 &quot;CreateService&quot; #{&quot;Action&quot; &quot;ServiceName&quot; &quot;ServiceVersion&quot; &quot;ServicePrice&quot;}
+	 &quot;ListServices&quot; #{&quot;Action&quot;}})</pre></td></tr><tr><td class="docs"><p>Concentrates all errors exposed by ty API</p>
 </td><td class="codes"><pre class="brush: clojure">(defonce api-errors
 	{1021 [1021 &quot;Pending Parameter(s): %s&quot;]
 	 2021 [2021 &quot;Invalid signature: %s&quot;]
@@ -3107,9 +3108,10 @@ net.brehaut.ClojureTools = (function (SH) {
 		(enqueue-and-close channel (v/wrap-err 3021))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defmethod act &quot;ListServices&quot;
 	[channel params request]
-	(enqueue-and-close (v/ok 
-		[{:ServiceName &quot;MortgageService&quot; :ServiceVersion &quot;V1_0&quot; :Price 0.001}
-		 {:ServiceName &quot;SampleService&quot; :ServiceVersion &quot;1.1&quot; :Price 0.22}])))</pre></td></tr><tr><td class="docs">
+	(enqueue-and-close channel 
+		(v/ok 
+			[{:ServiceName &quot;MortgageService&quot; :ServiceVersion &quot;V1_0&quot; :Price 0.001}
+		 	 {:ServiceName &quot;SampleService&quot; :ServiceVersion &quot;1.1&quot; :Price 0.22}])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defmethod act &quot;GetUserSummary&quot; 
     [channel params request]
     (if-let [summary (s/get-user-summary (get params &quot;SecurityKeyID&quot;) 
@@ -3224,8 +3226,8 @@ from the database in for every request.</p>
 </td><td class="codes"><pre class="brush: clojure">(defentity service)</pre></td></tr><tr><td class="docs"><h2>Ticket</h2>
 
 <p>Represents the tickets</p>
-</td><td class="codes"><pre class="brush: clojure">(defentity ticket)</pre></td></tr><tr><td class="docs"><p>A base query. Used to distiguish the active rows in the
-    database.</p>
+</td><td class="codes"><pre class="brush: clojure">(defentity ticket)</pre></td></tr><tr><td class="docs"><p>"A base query. Used to distiguish the active rows in the
+database."</p>
 </td><td class="codes"><pre class="brush: clojure">(defonce active 
 	(not= nil :deleted_at))</pre></td></tr><tr><td class="docs"><p>TODO: Put in a protocol.
     By now it calls the <code>UUID();</code> 
