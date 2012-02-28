@@ -47,7 +47,7 @@
           <a class="brand" href="#">Fiscalia</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
+              <li class="active"><a href="#services">Home</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
@@ -64,6 +64,7 @@
             <th>Name</th>
             <th>Version</th>
             <th>Price</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -72,6 +73,9 @@
               <td><%= s.ServiceName %></td>
               <td><%= s.ServiceVersion %></td>
               <td><%= s.ServicePrice %></td>
+              <td>
+                  <i class="icon-trash"></i>
+              </td>
             </tr>
           <% }); %>
           </tr>
@@ -81,10 +85,12 @@
         <input type="text" class="span3" placeholder="Name" id="ServiceName">
         <input type="text" class="input-small" placeholder="Version" id="ServiceVersion">
         <input type="text" class="input-small" placeholder="Price" id="ServicePrice">
-        <a href="#" class="btn">Save</a>
+        <a href="#services" class="btn">Save</a>
       </form>
   
 </script>
+
+
 
     <div class="container">
       <div class="adiv"/>
@@ -97,11 +103,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
   <script src="/js/jquery.js"></script>
 	<script src="/js/bootstrap-dropdown.js"></script> 
-	<!-- script src="/js/knockout-2.0.0.js"></script -->
   <script src="/js/bootstrap-modal.js"></script>
   <script src="/js/underscore-min.js"></script>  
   <script src="/js/backbone-min.js"></script>
   <script src="/js/fiscalia.js"></script>
-
   </body>
 </html>

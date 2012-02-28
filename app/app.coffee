@@ -1,30 +1,20 @@
-class ServiceModel
-    skeyid = "t5xC1SV2ISUiKfzIhPS2"
+jQuery ->
+  api = new FiscaAPI("DEBUG")
+  
+  class FiscaliaApp extends Backbone.Router
     
-    constructor: (name, version, price, notes) -> 
-        @name = ko.observable name
-        @version = ko.observable version
-        @price = ko.observable price
-        @createService.bind @
+    routes: { "services" : "showService" }
 
-    mkRequest: (action) ->
-        $.ajax 
-          url: '/'
-          data: 
-                Action: action
-                ServiceName: @name()
-                ServiceVersion: @version()
-                ServicePrice: @price()
-                SecurityKeyID: @skeyid
+    showService: () ->
+      serviceList_view = new ServiceListView
+      services = api.listServices(0, (data) -> serviceList_view.collection.add data)
+      #serviceList_view.collection.add services
 
-    createService: ->
-        request = @mkRequest('CreateService')
-        request.done (data) ->
-                    $(".modal-body p").html 'Created with Id: ' + data.ServiceId
-                    $("#modal-create").modal 'toggle'
+  init = ->
+    app = new FiscaliaApp
+    Backbone.history.start {pushState: true}
+    app.navigate "index.html#services"
+  
+  $(document).ready init
 
-        request.fail (jqHXT, result, thrown) ->
-                    $(".modal-body p").html JSON.parse(jqHXT.responseText).msg
-                    $("#modal-create").modal 'toggle'
-
-
+    

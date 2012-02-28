@@ -25,10 +25,9 @@
 ;; Represents the tickets
 (defentity ticket)
 
-
+;;	"A base query. Used to distiguish the active rows in the
+;;	database."
 (defonce active 
-	"A base query. Used to distiguish the active rows in the
-	database."
 	(not= nil :deleted_at))
 
 (defn next-ticket-id 

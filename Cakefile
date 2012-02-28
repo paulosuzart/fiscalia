@@ -6,7 +6,10 @@ path        = require 'path'
 
 
 appFiles  = [
-  'fiscalia'
+  'logger'
+  'fiscapi'
+  'fiscalia',
+  'app'
 ].map (f) -> "app/#{f}.coffee"
 
 build = (callback) ->

@@ -12,7 +12,8 @@
 	 "GenerateBill" #{"Action" "SecurityKeyID" "Signature"}
 	 "GetUserSummary" #{"Action" "SecurityKeyID" "Signature" 
 	 					"ServiceName" "ServiceUser" "ServiceVersion"}
-	 "CreateService" #{"Action" "ServiceName" "ServiceVersion" "ServicePrice"}})
+	 "CreateService" #{"Action" "ServiceName" "ServiceVersion" "ServicePrice"}
+	 "ListServices" #{"Action"}})
 
 ;; Concentrates all errors exposed by ty API
 (defonce api-errors
