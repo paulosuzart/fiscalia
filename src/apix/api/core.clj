@@ -35,10 +35,14 @@
 
 (defmethod act "ListServices"
 	[channel params request]
-	(enqueue-and-close channel 
-		(v/ok 
-			[{:ServiceName "MortgageService" :ServiceVersion "V1_0" :Price 0.001}
-		 	 {:ServiceName "SampleService" :ServiceVersion "1.1" :Price 0.22}])))
+	(if-let [services (s/list-services (get params "next"))]
+		(enqueue-and-close channel 
+			(v/ok (map #(hash-map :ServiceName (:service_name %)
+								  :ServiceId (:service_id %)
+								  :ServiceVersion (:service_version %)
+								  :ServicePrice (:price %)) 
+						services)))
+		(enqueue-and-close channel (v/ok {}))))
 
 ; Get the summary usage by user and service service version.
 (defmethod act "GetUserSummary" 

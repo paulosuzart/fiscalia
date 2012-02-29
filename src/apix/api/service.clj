@@ -63,6 +63,14 @@
 									:service_version sversion})))]
 		(:price price)))
 
+(defn list-services [next]
+	(when-let [services (-> (select* m/service) 
+								(where m/active)
+								(order :service_name :ASC)
+								(exec))]
+		services))
+
+
 ;; ## Ticket
 
 ;; ### Channels
