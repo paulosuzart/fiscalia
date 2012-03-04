@@ -50,6 +50,22 @@ Notes:
 --------
 APIX API returns json only. xml may be added in the future.
 
+
+**Action:** `CreateService`
+---------------------------
+
+**Description:** Creates a new service into the repository. This service is then able
+to receive registered tickets.
+* `ServiceName` - Valid service name
+* `ServiceVersion` - Valid service version
+* `ServicePrice` - any numeric value
+* `SercurityKeyID` - Security Key ID used to sign the request
+* `Signature` - Signature of the request
+
+Returns: `{"ServiceId" : [numericid]}`
+    
+or: `{"code" : 3021, "msg" : "Unable to create Service. See logs for detail."}`
+
 Signing API Calls
 =================
 

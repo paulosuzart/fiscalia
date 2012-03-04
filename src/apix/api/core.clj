@@ -24,11 +24,15 @@
 ;;    Returns: `{"ServiceId" : [numericid]}`
 ;;    
 ;;    or: `{"code" : 3021, "msg" : "Unable to create Service. See logs for detail."}`
+
+(defn #^{:private true} to-service [params]
+	{:service_name (get params "ServiceName") 
+					 :service_version (get params "ServiceVersion")
+					 :price (get params "ServicePrice")})
+
 (defmethod act "CreateService" 
 	[channel params request]
-	(if-let [service-id (s/create-service {:service_name (get params "ServiceName") 
-					 :service_version (get params "ServiceVersion")
-					 :price (get params "ServicePrice")}
+	(if-let [service-id (s/create-service (to-service params)
 					 (get params "SecurityKeyID"))]
 		(enqueue-and-close channel (v/ok {:ServiceId service-id}))
 		(enqueue-and-close channel (v/wrap-err 3021))))
