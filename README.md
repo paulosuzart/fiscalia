@@ -24,17 +24,17 @@ API Usage
 
 **Request Parameters :**
 
-* `SecurityKeyID` - A user should have one or more security key identifiers to identify the security key used to sign the request. Only valid keys should be used (not marked as deleted).
-* `ServiceUser` - A user should pass on his user. This user represents possible costumers of our users.
-* `ServiceName` - The name of the service beeing billed.
-* `ServiceVersion` - Since Bill IT allows users to have more than one servicer registered, they should identify the service version.
-* `TicketTime` - In the for of `2011-10-12 05:30:22 -0300`
-* `Signature` - The signature itself.
+   * `SecurityKeyID` - A user should have one or more security key identifiers to identify the security key used to sign the request. Only valid keys should be used (not marked as deleted).
+   * `ServiceUser` - A user should pass on his user. This user represents possible costumers of our users.
+   * `ServiceName` - The name of the service beeing billed.
+   * `ServiceVersion` - Since Bill IT allows users to have more than one servicer registered, they should identify the service version.
+   * `TicketTime` - In the for of `2011-10-12 05:30:22 -0300`
+   * `Signature` - The signature itself.
 
 Response Parameters (in json format)
 
-* `ticket-uuid (string)`: The id for the created ticket
-* `X-Billit-Api-Time` : Time spent to register the ticket in milliseconds - *as HTTP header*
+   * `ticket-uuid (string)`: The id for the created ticket
+   * `X-Billit-Api-Time` : Time spent to register the ticket in milliseconds - *as HTTP header*
 
 Examples:
 
@@ -54,13 +54,13 @@ APIX API returns json only. xml may be added in the future.
 **Action:** `CreateService`
 ---------------------------
 
-**Description:** Creates a new service into the repository. This service is then able
-to receive registered tickets.
-* `ServiceName` - Valid service name
-* `ServiceVersion` - Valid service version
-* `ServicePrice` - any numeric value
-* `SercurityKeyID` - Security Key ID used to sign the request
-* `Signature` - Signature of the request
+**Description:** Creates a new service into the repository. This service is then able to receive registered tickets.
+   
+   * `ServiceName` - Valid service name
+   * `ServiceVersion` - Valid service version
+   * `ServicePrice` - any numeric value
+   * `SercurityKeyID` - Security Key ID used to sign the request
+   * `Signature` - Signature of the request
 
 Returns: `{"ServiceId" : [numericid]}`
     
